@@ -150,23 +150,23 @@ public class TransactionController {
     }
 
     // 5. GET REPORT DATA (Daily, Weekly, Monthly)
-    @GetMapping("/{userId}/report")
-    public ResponseEntity<List<ReportItemDTO>> getReport(
-            @PathVariable Long userId, 
-            @RequestParam String type) { // type: daily, weekly, monthly
+    // @GetMapping("/{userId}/report")
+    // public ResponseEntity<List<ReportItemDTO>> getReport(
+    //         @PathVariable Long userId, 
+    //         @RequestParam String type) { // type: daily, weekly, monthly
         
-        LocalDate end = LocalDate.now();
-        LocalDate start = LocalDate.now();
+    //     LocalDate end = LocalDate.now();
+    //     LocalDate start = LocalDate.now();
 
-        if (type.equalsIgnoreCase("weekly")) {
-            start = end.minusWeeks(1);
-        } else if (type.equalsIgnoreCase("monthly")) {
-            start = end.minusMonths(1);
-        }
-        // kalau daily, start = end (hari ini saja)
+    //     if (type.equalsIgnoreCase("weekly")) {
+    //         start = end.minusWeeks(1);
+    //     } else if (type.equalsIgnoreCase("monthly")) {
+    //         start = end.minusMonths(1);
+    //     }
+    //     // kalau daily, start = end (hari ini saja)
 
-        return ResponseEntity.ok(transactionRepository.getSalesReport(userId, start, end));
-    }
+    //     return ResponseEntity.ok(transactionRepository.getSalesReport(userId, start, end));
+    // }
 
     @PutMapping("/{transactionId}/status")
     public ResponseEntity<?> updateStatus(@PathVariable Long transactionId, @RequestParam String status) {
@@ -175,5 +175,20 @@ public class TransactionController {
             transactionRepository.save(trx);
             return ResponseEntity.ok("Status berhasil diubah");
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // 7. GET LAPORAN BERDASARKAN TANGGAL
+    @GetMapping("/{userId}/report")
+    public ResponseEntity<List<Transaction>> getReportData(
+            @PathVariable Long userId,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        // Jika tanggal tidak dipilih, default ke HARI INI
+        if (startDate == null) startDate = LocalDate.now();
+        if (endDate == null) endDate = LocalDate.now();
+
+        List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(userId, startDate, endDate);
+        return ResponseEntity.ok(transactions);
     }
 }

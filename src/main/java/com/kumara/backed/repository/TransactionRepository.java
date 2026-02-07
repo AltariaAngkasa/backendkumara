@@ -16,6 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // 1. Ambil list transaksi urut dari yang terbaru
     List<Transaction> findByUserIdOrderByIdDesc(Long userId);
     //List<Transaction> findByUserIdOrderByTransactionDateDesc(Long userId);
+    List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 
     // 2. Query Grafik: Hitung total per hari untuk user tertentu dalam rentang tanggal
     @Query("SELECT t.transactionDate, SUM(t.amount) FROM Transaction t " +
